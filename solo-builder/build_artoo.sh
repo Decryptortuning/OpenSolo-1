@@ -1,7 +1,6 @@
 #!/bin/bash
 set -e
 
-
 rm -rf /vagrant/artoo/artoo.bin
 cd /vagrant/artoo
 tup

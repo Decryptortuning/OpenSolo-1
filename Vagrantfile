@@ -35,7 +35,7 @@ Vagrant.configure(2) do |config|
 
   config.vm.provider "virtualbox" do |vb|
     # not recommended to use less than 6GB
-    vb.memory = "6144"
+    vb.memory = "24577"
     vb.cpus = processor_count
   end
 

@@ -10,7 +10,6 @@
 
 git config --global http.sslverify "false"
 
-
 # Defaults if options are not set from command line set
 MACHINE_BUILD='both'
 ARTOO_BUILD=true
@@ -18,18 +17,16 @@ CLEAN_BUILD=false
 NUKE_BUILD=false
 SCRIPT_MODE=false
 
-
 # Check command line options for git account, repo, and branch.
-while getopts a:m:c:n:s: option
-do
- case ${option}
- in
- a) ARTOO_BUILD=${OPTARG};;
- m) MACHINE_BUILD=${OPTARG};;
- c) CLEAN_BUiLD=${OPTARG};;
- n) NUKE_BUILD=${OPTARG};;
- s) SCRIPT_MODE=${OPTARG};;
- esac
+while getopts a:m:c:n:s: option; do
+    case ${option} in
+
+    a) ARTOO_BUILD=${OPTARG} ;;
+    m) MACHINE_BUILD=${OPTARG} ;;
+    c) CLEAN_BUiLD=${OPTARG} ;;
+    n) NUKE_BUILD=${OPTARG} ;;
+    s) SCRIPT_MODE=${OPTARG} ;;
+    esac
 done
 
 ## If nuke arg true, delete the build directory to start from a clean slate
@@ -38,10 +35,10 @@ if $NUKE_BUILD; then
         echo
         read -p "Wipe build directory to star over from a clean slate? (y/n):" choice
         echo
-        case "$choice" in 
-        y|Y ) ;;
-        n|N ) echo "Aborting..." && exit 1;;
-        * ) echo "Invalid response. Quit pushing my buttons. Aborting..." && exit 1;;
+        case "$choice" in
+        y | Y) ;;
+        n | N) echo "Aborting..." && exit 1 ;;
+        *) echo "Invalid response. Quit pushing my buttons. Aborting..." && exit 1 ;;
         esac
         echo
     fi
@@ -55,13 +52,13 @@ fi
 # Prompt for what is about to execute
 
 if ! $SCRIPT_MODE; then
-    echo 
+    echo
     read -p "Proceed with build? (y/n):" choice
     echo
-    case "$choice" in 
-    y|Y ) echo "Yes! Proceeding with build.";;
-    n|N ) echo "No? Fine. Aborting build.." && exit 1;;
-    * ) echo "Invalid response. Quit pushing my buttons. Aborting build." && exit 1;;
+    case "$choice" in
+    y | Y) echo "Yes! Proceeding with build." ;;
+    n | N) echo "No? Fine. Aborting build.." && exit 1 ;;
+    *) echo "Invalid response. Quit pushing my buttons. Aborting build." && exit 1 ;;
     esac
     echo
 fi
@@ -69,8 +66,7 @@ fi
 ## if -a arg is true, build the Artoo STM32 firmware and copy artoo.bin to the build.
 if $ARTOO_BUILD; then
     /vagrant/solo-builder/build_artoo.sh
-    if [ ! $? -eq 0 ]
-    then
+    if [ ! $? -eq 0 ]; then
         exit 1
     fi
 fi
@@ -84,13 +80,12 @@ fi
 ## Switch to build directory
 cd /solo-build
 
-
 export MACHINE=imx6solo-3dr-1080p
 EULA=1 source ./setup-environment build
 export_return=$?
-if [  $export_return -eq 0 ]; then
+if [ $export_return -eq 0 ]; then
     echo "Build environment ready, if u were expecting the build to happen, and it hasn't, edit builder.sh and try removing all the '> /dev/null' bits , and re-run, for more info"
-elif [  $export_return -eq 2 ]; then
+elif [ $export_return -eq 2 ]; then
     # Automatic restart as required
     echo "Restarting setup environment"
     export MACHINE=imx6solo-3dr-1080p
@@ -116,27 +111,26 @@ fi
 if $CLEAN_BUILD; then
     # these clean command/s are very verbose, and return an error code even though the clean works, lets quieten them:
     echo "solo clean started..."
-    MACHINE=imx6solo-3dr-1080p bitbake world -c cleansstate -f -k 2>&1 > /dev/null
+    MACHINE=imx6solo-3dr-1080p bitbake world -c cleansstate -f -k 2>&1 >/dev/null
     echo "...solo clean finished."
 
     echo "controller clean started..."
-    MACHINE=imx6solo-3dr-artoo bitbake world -c cleansstate -f -k 2>&1 > /dev/null
+    MACHINE=imx6solo-3dr-artoo bitbake world -c cleansstate -f -k 2>&1 >/dev/null
     echo "...controller clean finished"
 fi
 
 # clean the solo specific recipies, even with -c true to ensure local changes are picked up
 if ! $CLEAN_BUILD; then
-    MACHINE=imx6solo-3dr-1080p bitbake -c clean -f -k sololink shotmanager sololink-python pymavlink mavproxy arducopter gimbal-firmware 2>&1 > /dev/null
+    MACHINE=imx6solo-3dr-1080p bitbake -c clean -f -k sololink shotmanager sololink-python pymavlink mavproxy arducopter gimbal-firmware 2>&1 >/dev/null
     if [ ! $? -eq 0 ]; then
         exit 1
     fi
 
-    MACHINE=imx6solo-3dr-artoo bitbake -c clean -f -k sololink sololink-python pymavlink mavproxy artoo-firmware stm32loader 2>&1 > /dev/null
+    MACHINE=imx6solo-3dr-artoo bitbake -c clean -f -k sololink sololink-python pymavlink mavproxy artoo-firmware stm32loader 2>&1 >/dev/null
     if [ ! $? -eq 0 ]; then
         exit 1
     fi
 fi
-
 
 ## if -m arg is solo or both, build the Solo's IMX
 if [ $MACHINE_BUILD = 'solo' ] || [ $MACHINE_BUILD = 'both' ]; then
@@ -146,16 +140,13 @@ if [ $MACHINE_BUILD = 'solo' ] || [ $MACHINE_BUILD = 'both' ]; then
     fi
 fi
 
-
 ## if -m arg is controller or both, build the Controller's IMX
 if [ $MACHINE_BUILD = 'controller' ] || [ $MACHINE_BUILD = 'both' ]; then
     MACHINE=imx6solo-3dr-artoo bitbake 3dr-controller
-    if [ ! $? -eq 0 ]
-    then
+    if [ ! $? -eq 0 ]; then
         exit 1
     fi
 fi
-
 
 # Copy the relevant files to a date/time stamped completed directory in the git repo folder for easy access (on git ignore list).
 # Make an MD5sum of each as is required for the Solo and Controller to accept the files.
@@ -164,18 +155,18 @@ fi
 COMP_DATE="$(date +%F_%H-%M)"
 COMP_DIR="completed_$(date +%F_%H-%M)"
 NEW_DIR=/vagrant/solo-builder/binaries/$COMP_DIR
-echo $COMP > /tmp/COMP.txt
+echo $COMP >/tmp/COMP.txt
 mkdir -p $NEW_DIR
 cd $NEW_DIR
 
 if [ $MACHINE_BUILD = 'solo' ] || [ $MACHINE_BUILD = 'both' ]; then
     cp /solo-build/build/tmp-eglibc/deploy/images/imx6solo-3dr-1080p/3dr-solo.tar.gz $NEW_DIR
-    md5sum 3dr-solo.tar.gz > 3dr-solo.tar.gz.md5
+    md5sum 3dr-solo.tar.gz >3dr-solo.tar.gz.md5
 fi
 
 if [ $MACHINE_BUILD = 'controller' ] || [ $MACHINE_BUILD = 'both' ]; then
     cp /solo-build/build/tmp-eglibc/deploy/images/imx6solo-3dr-artoo/3dr-controller.tar.gz $NEW_DIR
-    md5sum 3dr-controller.tar.gz > 3dr-controller.tar.gz.md5
+    md5sum 3dr-controller.tar.gz >3dr-controller.tar.gz.md5
     cp /vagrant/meta-3dr/recipes-firmware/artoo/files/artoo.bin "$NEW_DIR/artoo_$COMP_DATE.bin"
 fi
 

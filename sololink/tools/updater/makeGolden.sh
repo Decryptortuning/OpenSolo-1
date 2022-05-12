@@ -1,19 +1,19 @@
 #!/bin/sh
 
-#This script takes an updated image and pushes it 
+#This script takes an updated image and pushes it
 #on to the GOLDEN partition of the SD card, creating a
 #new golden image.  This should only be used for
 #development and production.
 
 #Make sure we're running on the update partition
-BOOTPART=`grep 'boot' /proc/mounts | awk '{print $1}'`
+BOOTPART=$(grep 'boot' /proc/mounts | awk '{print $1}')
 
 if [ $BOOTPART == "/dev/mmcblk0p1" ]; then
     echo "Already on golden partition"
     exit
 else
     echo "Making the update partition the golden partition"
-fi;
+fi
 
 echo "Unmounting the golden partition"
 umount /dev/mmcblk0p1
@@ -28,4 +28,3 @@ cp -r /mnt/boot/* golden/
 umount golden
 
 echo "All done!  Run a factory reset if you'd like."
-

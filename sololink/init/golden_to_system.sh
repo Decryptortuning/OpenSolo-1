@@ -11,7 +11,7 @@
 echo "Beginning golden_to_system.sh update script."
 
 isGolden() {
-    boot_dev=`grep 'boot' /proc/mounts | awk '{print $1}'`
+    boot_dev=$(grep 'boot' /proc/mounts | awk '{print $1}')
     # boot_dev should be either:
     #   /dev/mmcblk0p1 when running golden, or
     #   /dev/mmcblk0p2 when running latest
@@ -45,7 +45,7 @@ makeSystem() {
     cd /mnt/boot
     tar -czvf /log/updates/$updateFilename *
     cd /log/updates
-    md5sum "$updateFilename" > "$updateFilename".md5
+    md5sum "$updateFilename" >"$updateFilename".md5
     ls -lh /log/updates/
     sed -i '1s/.*/golden/' /VERSION
     echo "Applying Update"
@@ -59,7 +59,7 @@ if ! isGolden; then
 fi
 
 echo "Creating recovery_to_system.log in /log/ directory."
-exec > /log/recovery_to_system.log
+exec >/log/recovery_to_system.log
 exec 2>&1
 
 updateFilename=nothing

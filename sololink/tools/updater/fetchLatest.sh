@@ -18,7 +18,7 @@ if [ $# -eq 0 ]; then
 fi
 
 if [ -z "${2}" ]; then
-    version=`date +%Y%m%d`
+    version=$(date +%Y%m%d)
 else
     version=${2}
 fi
@@ -30,8 +30,8 @@ get_image() {
     # $2 is link_name
     # $3 is version
     if [ -e ${2} ]; then
-        full_path=`readlink ${2}`
-        src_name=`basename ${full_path}`
+        full_path=$(readlink ${2})
+        src_name=$(basename ${full_path})
         dst_name=${1}_${3}.tar.gz
         echo "copying ${src_name} -> ${dst_name}"
         cp ${full_path} ${dst_name}

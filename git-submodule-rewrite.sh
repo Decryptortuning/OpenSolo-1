@@ -5,7 +5,7 @@
 # entire process and cleans up a few other corner cases.
 # https://x3ro.de/2013/09/01/Integrating-a-submodule-into-the-parent-repository.html
 
-function usage(){
+function usage() {
   echo "Usage: $0 <submodule-name> [<submodule-branch>]"
   echo "Merge a single branch of <submodule-name> into a repo, retaining file history."
   echo "If provided then <submodule-branch> will be merged, otherwise master."
@@ -16,17 +16,17 @@ function usage(){
 }
 
 function abort {
-    echo "$(tput setaf 1)$1$(tput sgr0)"
-    exit 1
+  echo "$(tput setaf 1)$1$(tput sgr0)"
+  exit 1
 }
 
 function request_confirmation {
-    read -p "$(tput setaf 4)$1 (y/n) $(tput sgr0)"
-    [ "$REPLY" == "y" ] || abort "Aborted!"
+  read -p "$(tput setaf 4)$1 (y/n) $(tput sgr0)"
+  [ "$REPLY" == "y" ] || abort "Aborted!"
 }
 
 function warn() {
-  cat << EOF
+  cat <<EOF
     This script will convert your "${sub}" git submodule into
     a simple subdirectory in the parent repository while retaining all
     contents, file history and its own submodules.
@@ -110,8 +110,7 @@ function main() {
   git remote add "${sub}" "${tmpdir}"
   git fetch "${sub}"
 
-  if git_version_lte 2.8.4
-  then
+  if git_version_lte 2.8.4; then
     # Previous to git 2.9.0 the parameter would yield an error
     ALLOW_UNRELATED_HISTORIES=""
   else
@@ -159,26 +158,26 @@ set -euo pipefail
 
 declare verbose=false
 while [ $# -gt 0 ]; do
-    case "$1" in
-        (-h|--help)
-            usage
-            exit 0
-            ;;
-        (-v|--verbose)
-            verbose=true
-            ;;
-        (*)
-            break
-            ;;
-    esac
-    shift
+  case "$1" in
+  -h | --help)
+    usage
+    exit 0
+    ;;
+  -v | --verbose)
+    verbose=true
+    ;;
+  *)
+    break
+    ;;
+  esac
+  shift
 done
 
 declare sub="${1:-}"
 declare branch="${2:-master}"
 
 if [ -z "${sub}" ]; then
-  >&2 echo "Error: No submodule specified"
+  echo >&2 "Error: No submodule specified"
   usage
   exit 1
 fi
@@ -190,13 +189,13 @@ if [ -n "${1:-}" ]; then
 fi
 
 if [ -n "${1:-}" ]; then
-  >&2 echo "Error: Unknown option: ${1:-}"
+  echo >&2 "Error: Unknown option: ${1:-}"
   usage
   exit 1
 fi
 
 if ! [ -d ".git" ]; then
-  >&2 echo "Error: No git repository found.  Must be run from the root of a git repository"
+  echo >&2 "Error: No git repository found.  Must be run from the root of a git repository"
   usage
   exit 1
 fi
@@ -206,19 +205,19 @@ declare superproject_dir="$(dirname $(git config --get remote.origin.url))"
 declare url=$(absolute_url $(git config -f .gitmodules --get "submodule.${sub}.url") $superproject_dir)
 
 if [ -z "${path}" ]; then
-  >&2 echo "Error: Submodule not found: ${sub}"
+  echo >&2 "Error: Submodule not found: ${sub}"
   usage
   exit 1
 fi
 
 if [ -z "${superproject_dir}" ]; then
-  >&2 echo "Error: Could not determine the remote origin for this superproject: ${superproject_dir}"
+  echo >&2 "Error: Could not determine the remote origin for this superproject: ${superproject_dir}"
   usage
   exit 1
 fi
 
 if ! [ -d "${path}" ]; then
-  >&2 echo "Error: Submodule path not found: ${path}"
+  echo >&2 "Error: Submodule path not found: ${path}"
   usage
   exit 1
 fi
